@@ -371,7 +371,10 @@ async function executeReconstruction() {
         for (const folderPath of folderPaths) {
             reconstructStatus.innerHTML = `<span>Reconstruyendo: <strong>${folderPath || 'Raíz'}</strong></span> <span>${processed + 1} de ${total}</span>`;
             
-            const files = folders[folderPath].sort((a, b) => a.name.localeCompare(b.name));
+            // Natural numeric sorting (pag_1, pag_2, pag_10 or pag_001, pag_002)
+            const files = folders[folderPath].sort((a, b) => 
+                a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
+            );
             
             const pdfDoc = await PDFLib.PDFDocument.create();
             pdfDoc.setTitle('');
