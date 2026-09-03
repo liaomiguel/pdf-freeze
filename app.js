@@ -1,3 +1,42 @@
+// SNACKBAR / TOAST NOTIFICATION UTILITY
+function showToast(message, type = 'info', duration = 4000) {
+    const container = document.getElementById('snackbar-container');
+    if (!container) return;
+
+    const snackbar = document.createElement('div');
+    snackbar.className = `snackbar snackbar-${type}`;
+
+    let iconSvg = '';
+    if (type === 'success') {
+        iconSvg = `<svg class="snackbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+    } else if (type === 'error') {
+        iconSvg = `<svg class="snackbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+    } else {
+        iconSvg = `<svg class="snackbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+    }
+
+    snackbar.innerHTML = `
+        ${iconSvg}
+        <span class="snackbar-text">${message}</span>
+        <button class="snackbar-close" aria-label="Cerrar">&times;</button>
+    `;
+
+    const closeBtn = snackbar.querySelector('.snackbar-close');
+    const dismiss = () => {
+        snackbar.classList.add('leaving');
+        snackbar.addEventListener('animationend', () => {
+            if (snackbar.parentNode) snackbar.parentNode.removeChild(snackbar);
+        });
+    };
+
+    closeBtn.addEventListener('click', dismiss);
+    container.appendChild(snackbar);
+
+    if (duration > 0) {
+        setTimeout(dismiss, duration);
+    }
+}
+
 // DYNAMIC COPYRIGHT YEAR
 document.addEventListener('DOMContentLoaded', () => {
     const yearSpan = document.getElementById('current-year');
@@ -43,7 +82,6 @@ document.addEventListener('keydown', (e) => {
         closePrivacyModal();
     }
 });
-
 
 // TAB SWITCHING LOGIC
 function switchTab(tabId) {
@@ -119,10 +157,12 @@ function updateExtractFiles(files) {
         extractSummaryText.textContent = `${pdfFilesToProcess.length} documento(s) listo(s) para procesar`;
         extractFileSummary.style.display = 'flex';
         extractBtn.disabled = false;
+        showToast(`${pdfFilesToProcess.length} documento(s) detectado(s) correctamente`, 'success');
     } else {
         extractSummaryText.textContent = `No se detectaron archivos PDF ni TIFF válidos.`;
         extractFileSummary.style.display = 'flex';
         extractBtn.disabled = true;
+        showToast('No se detectaron archivos .pdf, .tif o .tiff en la carpeta seleccionada', 'error');
     }
 }
 
@@ -140,6 +180,7 @@ extractBtn.addEventListener('click', async () => {
     
     let processed = 0;
     const total = pdfFilesToProcess.length;
+    showToast(`Iniciando extracción y rasterizado de ${total} documento(s)...`, 'info');
 
     for (const file of pdfFilesToProcess) {
         extractStatus.innerHTML = `<span>Procesando: <strong>${file.name}</strong></span> <span>${processed + 1} de ${total}</span>`;
@@ -198,6 +239,7 @@ extractBtn.addEventListener('click', async () => {
             }
         } catch (error) {
             console.error(`Error procesando ${file.name}:`, error);
+            showToast(`Error procesando ${file.name}: ${error.message}`, 'error');
         }
         processed++;
         extractProgress.style.width = `${(processed / total) * 100}%`;
@@ -209,6 +251,7 @@ extractBtn.addEventListener('click', async () => {
     
     extractStatus.innerHTML = `<span>Proceso finalizado con éxito. Descarga iniciada.</span>`;
     extractBtn.disabled = false;
+    showToast('Imágenes extraídas y empaquetadas en ZIP con éxito', 'success');
 });
 
 
@@ -228,6 +271,7 @@ function updateReconstructFile(files) {
         reconstructSummaryText.textContent = `Archivo ZIP seleccionado: ${uploadedZipFile.name} (${(uploadedZipFile.size / (1024 * 1024)).toFixed(2)} MB)`;
         reconstructFileSummary.style.display = 'flex';
         reconstructBtn.disabled = false;
+        showToast(`Archivo ZIP '${uploadedZipFile.name}' cargado correctamente`, 'success');
     }
 }
 
@@ -237,13 +281,13 @@ reconstructInput.addEventListener('change', (e) => {
 
 setupDropzone('reconstruct-dropzone', 'reconstruct-input', updateReconstructFile);
 
-reconstructBtn.disabled = false;
 reconstructBtn.addEventListener('click', async () => {
     if (!uploadedZipFile) return;
     reconstructBtn.disabled = true;
     reconstructContainer.style.display = 'block';
     reconstructProgress.style.width = '0%';
     reconstructStatus.innerHTML = `<span>Leyendo estructura ZIP...</span>`;
+    showToast('Iniciando lectura y reconstrucción de PDF plano...', 'info');
     
     try {
         const inputZip = await JSZip.loadAsync(uploadedZipFile);
@@ -320,9 +364,11 @@ reconstructBtn.addEventListener('click', async () => {
         saveAs(content, "pdfs_reconstruidos.zip");
         
         reconstructStatus.innerHTML = `<span>Reconstrucción finalizada con éxito. Descarga iniciada.</span>`;
+        showToast('PDFs planos sanitizados generados y descargados con éxito', 'success');
     } catch (err) {
         console.error(err);
         reconstructStatus.innerHTML = `<span style="color:#ef4444">Error durante la reconstrucción: ${err.message}</span>`;
+        showToast(`Error durante la reconstrucción: ${err.message}`, 'error');
     }
     
     reconstructBtn.disabled = false;
