@@ -77,9 +77,53 @@ if (privacyModal) {
     });
 }
 
+// BATCH CONFIRMATION MODAL LOGIC
+const confirmModal = document.getElementById('confirm-modal');
+const confirmModalTitle = document.getElementById('confirm-modal-title');
+const confirmModalMessage = document.getElementById('confirm-modal-message');
+const confirmModalClose = document.getElementById('confirm-modal-close');
+const confirmModalCancel = document.getElementById('confirm-modal-cancel');
+const confirmModalAction = document.getElementById('confirm-modal-action');
+let onConfirmCallback = null;
+
+function showConfirmModal({ title, message, actionText, onConfirm }) {
+    if (!confirmModal) return;
+    if (confirmModalTitle) confirmModalTitle.textContent = title;
+    if (confirmModalMessage) confirmModalMessage.innerHTML = message;
+    if (confirmModalAction) confirmModalAction.textContent = actionText || 'Confirmar';
+    onConfirmCallback = onConfirm;
+    
+    confirmModal.classList.add('active');
+    confirmModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeConfirmModal() {
+    if (confirmModal) {
+        confirmModal.classList.remove('active');
+        confirmModal.setAttribute('aria-hidden', 'true');
+    }
+    onConfirmCallback = null;
+}
+
+if (confirmModalClose) confirmModalClose.addEventListener('click', closeConfirmModal);
+if (confirmModalCancel) confirmModalCancel.addEventListener('click', closeConfirmModal);
+if (confirmModalAction) {
+    confirmModalAction.addEventListener('click', () => {
+        const callback = onConfirmCallback;
+        closeConfirmModal();
+        if (callback) callback();
+    });
+}
+if (confirmModal) {
+    confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) closeConfirmModal();
+    });
+}
+
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && privacyModal && privacyModal.classList.contains('active')) {
-        closePrivacyModal();
+    if (e.key === 'Escape') {
+        if (confirmModal && confirmModal.classList.contains('active')) closeConfirmModal();
+        if (privacyModal && privacyModal.classList.contains('active')) closePrivacyModal();
     }
 });
 
@@ -172,7 +216,7 @@ extractInput.addEventListener('change', (e) => {
 
 setupDropzone('extract-dropzone', 'extract-input', updateExtractFiles);
 
-extractBtn.addEventListener('click', async () => {
+async function executeExtraction() {
     extractBtn.disabled = true;
     extractContainer.style.display = 'block';
     extractProgress.style.width = '0%';
@@ -252,6 +296,16 @@ extractBtn.addEventListener('click', async () => {
     extractStatus.innerHTML = `<span>Proceso finalizado con éxito. Descarga iniciada.</span>`;
     extractBtn.disabled = false;
     showToast('Imágenes extraídas y empaquetadas en ZIP con éxito', 'success');
+}
+
+extractBtn.addEventListener('click', () => {
+    if (pdfFilesToProcess.length === 0) return;
+    showConfirmModal({
+        title: 'Confirmar Extracción de Documentos',
+        message: `¿Desea iniciar la extracción y rasterización de <strong>${pdfFilesToProcess.length} documento(s)</strong> a imágenes PNG de 150 DPI?`,
+        actionText: 'Iniciar Extracción',
+        onConfirm: executeExtraction
+    });
 });
 
 
@@ -281,7 +335,7 @@ reconstructInput.addEventListener('change', (e) => {
 
 setupDropzone('reconstruct-dropzone', 'reconstruct-input', updateReconstructFile);
 
-reconstructBtn.addEventListener('click', async () => {
+async function executeReconstruction() {
     if (!uploadedZipFile) return;
     reconstructBtn.disabled = true;
     reconstructContainer.style.display = 'block';
@@ -372,4 +426,14 @@ reconstructBtn.addEventListener('click', async () => {
     }
     
     reconstructBtn.disabled = false;
+}
+
+reconstructBtn.addEventListener('click', () => {
+    if (!uploadedZipFile) return;
+    showConfirmModal({
+        title: 'Confirmar Reconstrucción en PDF Plano',
+        message: `¿Desea iniciar la reconstrucción de documentos planos para el archivo <strong>${uploadedZipFile.name}</strong>?`,
+        actionText: 'Reconstruir PDF',
+        onConfirm: executeReconstruction
+    });
 });

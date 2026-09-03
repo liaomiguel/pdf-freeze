@@ -236,6 +236,32 @@
         </div>
     </div>
 
+    <!-- BATCH CONFIRMATION MODAL -->
+    <div id="confirm-modal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="confirm-modal-title">
+        <div class="modal-card modal-card-sm">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <h3 id="confirm-modal-title">Confirmar Operación</h3>
+                </div>
+                <button type="button" class="modal-close" id="confirm-modal-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <p id="confirm-modal-message">¿Desea continuar con el procesamiento de los documentos seleccionados?</p>
+            </div>
+
+            <div class="modal-footer modal-footer-split">
+                <button type="button" class="btn-secondary" id="confirm-modal-cancel">Cancelar</button>
+                <button type="button" class="btn-primary-action" id="confirm-modal-action">Confirmar Procesamiento</button>
+            </div>
+        </div>
+    </div>
+
     <!-- SNACKBAR / TOAST NOTIFICATION CONTAINER -->
     <div id="snackbar-container" class="snackbar-container" aria-live="polite"></div>
 

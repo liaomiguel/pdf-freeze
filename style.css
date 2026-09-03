@@ -370,6 +370,23 @@ body {
     border-color: var(--text-muted);
 }
 
+.btn-primary-action {
+    padding: 10px 20px;
+    background: var(--primary);
+    border: none;
+    color: white;
+    font-family: var(--font-stack);
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-primary-action:hover {
+    background: var(--primary-hover);
+}
+
 .btn-text {
     background: none;
     border: none;
@@ -545,6 +562,10 @@ body {
     transition: transform 0.25s ease;
 }
 
+.modal-card-sm {
+    max-width: 460px;
+}
+
 .modal-backdrop.active .modal-card {
     transform: scale(1);
 }
@@ -616,6 +637,12 @@ body {
     border-top: 1px solid var(--card-border);
     display: flex;
     justify-content: flex-end;
+}
+
+.modal-footer-split {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
 }
 
 /* SNACKBAR / TOAST COMPONENT */
