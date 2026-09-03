@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Freeze | Sanitizador y Aplanador Seguro de Documentos</title>
+    <meta name="description" content="Herramienta profesional de grado corporativo para aplanar, sanitizar y censurar irreversiblemente documentos PDF y TIFF en el navegador. 100% privado sin servidor.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%232563eb%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- LIBRERIAS EXTERNAS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.min.js"></script>
+</head>
+<body>
+    <div class="app-viewport">
+        <!-- TOP NAV / BAR -->
+        <header class="navbar">
+            <div class="brand">
+                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+                <div class="brand-text">
+                    <span class="brand-title">PDF Freeze</span>
+                    <span class="brand-subtitle">Enterprise Document Sanitizer</span>
+                </div>
+            </div>
+            <div class="security-badge">
+                <span class="security-dot"></span>
+                <span>Procesamiento 100% Local (Navegador)</span>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT CONTAINER -->
+        <main class="main-card">
+            <!-- STEPPER TABS -->
+            <div class="step-nav" role="tablist">
+                <button class="tab-btn active" role="tab" aria-selected="true" onclick="switchTab('extract')">
+                    <span class="step-number">01</span>
+                    <span class="step-text">
+                        <span class="step-title">Extracción y Sanitización</span>
+                        <span class="step-desc">Convertir PDF/TIFF a imágenes PNG</span>
+                    </span>
+                </button>
+                <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('reconstruct')">
+                    <span class="step-number">02</span>
+                    <span class="step-text">
+                        <span class="step-title">Reconstrucción Inalterable</span>
+                        <span class="step-desc">Ensamblar imágenes a PDF plano sin metadatos</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- TAB 1: EXTRAER Y SANITIZAR -->
+            <section id="extract-tab" class="tab-content active" role="tabpanel">
+                <div class="panel-header">
+                    <h2>Fase 1: Extracción a Imágenes (Rasterización)</h2>
+                    <p>Seleccione la carpeta raíz que contiene los documentos PDF o TIFF a procesar. Se desarmarán las páginas en imágenes PNG de 150 DPI, eliminando texto vectorial y metadatos.</p>
+                </div>
+                
+                <div class="upload-area" id="extract-dropzone">
+                    <input type="file" id="extract-input" webkitdirectory directory multiple aria-label="Seleccionar carpeta de documentos">
+                    <div class="upload-content">
+                        <div class="upload-icon-wrapper">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                                <polyline points="12 11 12 17"/>
+                                <polyline points="9 14 12 11 15 14"/>
+                            </svg>
+                        </div>
+                        <div class="upload-prompt">
+                            <p class="prompt-main">Haga clic para seleccionar una <strong>carpeta local</strong></p>
+                            <p class="prompt-sub">Soporta directorios con subcarpetas anidadas (.pdf, .tif, .tiff)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="file-summary" id="extract-file-summary" style="display: none;">
+                    <div class="summary-info">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <span id="extract-summary-text">0 documentos detectados</span>
+                    </div>
+                </div>
+
+                <button id="extract-btn" class="btn-primary" disabled>
+                    <span>Iniciar Extracción de Imágenes (ZIP)</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+                
+                <div class="progress-panel" id="extract-progress-container" style="display: none;">
+                    <div class="progress-header">
+                        <span id="extract-status" class="status-label">Procesando documentos...</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-bar" id="extract-progress"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: RECONSTRUIR PDF -->
+            <section id="reconstruct-tab" class="tab-content" role="tabpanel">
+                <div class="panel-header">
+                    <h2>Fase 2: Reconstrucción en PDF Plano (Bloque Sólido)</h2>
+                    <p>Sube el archivo <strong>ZIP</strong> que contiene las imágenes PNG/JPG resultantes (editadas o no). Se generará un PDF plano sin capas, metadatos ni marcas vectoriales.</p>
+                </div>
+                
+                <div class="upload-area" id="reconstruct-dropzone">
+                    <input type="file" id="reconstruct-input" accept=".zip" aria-label="Seleccionar archivo ZIP">
+                    <div class="upload-content">
+                        <div class="upload-icon-wrapper">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                        </div>
+                        <div class="upload-prompt">
+                            <p class="prompt-main">Haga clic para subir el archivo <strong>.ZIP</strong></p>
+                            <p class="prompt-sub">Conteniendo la estructura de imágenes e historial de carpetas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="file-summary" id="reconstruct-file-summary" style="display: none;">
+                    <div class="summary-info">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        <span id="reconstruct-summary-text">Archivo cargado</span>
+                    </div>
+                </div>
+
+                <button id="reconstruct-btn" class="btn-primary" disabled>
+                    <span>Generar PDF Plano Sanitizado (ZIP)</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+                
+                <div class="progress-panel" id="reconstruct-progress-container" style="display: none;">
+                    <div class="progress-header">
+                        <span id="reconstruct-status" class="status-label">Generando documento...</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-bar" id="reconstruct-progress"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- SECURITY AUDIT FOOTER / SPECIFICATIONS -->
+        <section class="trust-grid">
+            <div class="trust-card">
+                <div class="trust-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <h3>Aplanado Rasterizado (150 DPI)</h3>
+                </div>
+                <p>Convierte cada página en un mapa de bits estático. Destruye definitivamente textos ocultos, formularios, firmas digitales y código vectorial.</p>
+            </div>
+            
+            <div class="trust-card">
+                <div class="trust-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <h3>Depuración de Metadatos</h3>
+                </div>
+                <p>Inyecta encabezados nulos en el documento reconstruido. Elimina autoría, software emisor, fechas de modificación y marcas de agua de origen.</p>
+            </div>
+
+            <div class="trust-card">
+                <div class="trust-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <h3>Replicación Recursiva Espejo</h3>
+                </div>
+                <p>Preserva la jerarquía de subcarpetas en lotes masivos de documentos. Mantiene la organización original de archivos sin intervención manual.</p>
+            </div>
+        </section>
+
+        <!-- FOOTER WITH ATTRIBUTION & PRIVACY MODAL TRIGGER -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p class="copyright-text">
+                    &copy; <span id="current-year"></span> PDF Freeze &bull; Desarrollado por <a href="https://liao.com.ar" target="_blank" rel="noopener noreferrer" class="author-link">Liao Miguel</a>
+                </p>
+                <div class="footer-actions">
+                    <button type="button" class="btn-text" id="privacy-modal-open">Política de Privacidad</button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- PRIVACY POLICY MODAL -->
+    <div id="privacy-modal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="privacy-modal-title">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-icon">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="m9 12 2 2 4-4"/>
+                    </svg>
+                    <h3 id="privacy-modal-title">Compromiso de Privacidad y Seguridad</h3>
+                </div>
+                <button type="button" class="modal-close" id="privacy-modal-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <p><strong>PDF Freeze</strong> ha sido diseñado bajo los estándares más estrictos de <em>Privacidad por Diseño (Privacy by Design)</em>. Esta herramienta le garantiza control total y confidencialidad absoluta sobre sus documentos corporativos o personales.</p>
+                
+                <div class="privacy-section">
+                    <h4>1. Procesamiento 100% Local (Client-Side)</h4>
+                    <p>Todo el proceso de renderizado, extracción de imágenes a 150 DPI, compresión ZIP y reconstrucción de archivos PDF se realiza <strong>exclusivamente en la memoria RAM de su navegador web</strong> mediante librerías JavaScript de código abierto.</p>
+                </div>
+
+                <div class="privacy-section">
+                    <h4>2. Cero Transmisión de Datos a Servidores</h4>
+                    <p>Sus archivos, imágenes y metadatos <strong>nunca se suben ni se transmiten a ningún servidor externo o servicio en la nube</strong>. No existen APIs backend ni bases de datos intermedias.</p>
+                </div>
+
+                <div class="privacy-section">
+                    <h4>3. Sin Telemetría ni Rastreadores</h4>
+                    <p>La aplicación no utiliza cookies de seguimiento, herramientas de analítica web ni almacenamiento persistente en el dispositivo.</p>
+                </div>
+
+                <div class="privacy-section">
+                    <h4>4. Operatividad Total Fuera de Línea (Offline)</h4>
+                    <p>Una vez cargada la página web, usted puede desconectar su computadora de Internet. PDF Freeze continuará ejecutando todas sus funciones de sanitización de forma completamente autónoma.</p>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="privacy-modal-confirm">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
