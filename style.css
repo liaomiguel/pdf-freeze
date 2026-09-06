@@ -55,7 +55,7 @@ body {
 /* TOOL NAVIGATION */
 .tool-nav {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 8px;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
@@ -694,6 +694,237 @@ body {
     border-color: var(--card-border-hover);
 }
 
+/* ANNOTATE EDITOR */
+.annotate-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.annotate-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+}
+
+.annotate-tool-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.annotate-tool-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-family: var(--font-stack);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.annotate-tool-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.annotate-tool-btn:hover:not(.active) {
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.annotate-tool-btn.active {
+    background: var(--primary-light);
+    border-color: var(--primary-border);
+    color: #93c5fd;
+}
+
+.annotate-props {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.annotate-prop {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.annotate-prop input[type="color"] {
+    width: 32px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--card-border-hover);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.annotate-prop input[type="number"] {
+    width: 56px;
+    height: 28px;
+    padding: 0 6px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--card-border-hover);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-family: var(--font-stack);
+    font-size: 12px;
+}
+
+.annotate-stage-shell {
+    width: 100%;
+    overflow: auto;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    max-height: min(70vh, 820px);
+}
+
+.annotate-stage {
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.annotate-stage.cursor-crosshair,
+.annotate-stage.cursor-crosshair .annotate-overlay {
+    cursor: crosshair;
+}
+
+.annotate-stage canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.annotate-overlay,
+.annotate-draft {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.annotate-draft {
+    border: 1px dashed rgba(37, 99, 235, 0.9);
+    pointer-events: none;
+    z-index: 5;
+}
+
+.anno-item {
+    position: absolute;
+    box-sizing: border-box;
+    cursor: move;
+    user-select: none;
+    touch-action: none;
+}
+
+.anno-item.selected {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+    z-index: 3;
+}
+
+.anno-rect {
+    pointer-events: auto;
+}
+
+.anno-text {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.anno-text .anno-text,
+.anno-item.anno-text .anno-text {
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-stack);
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: pre-wrap;
+    word-break: break-word;
+    outline: none;
+    cursor: text;
+}
+
+.anno-item.anno-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+    display: block;
+}
+
+.anno-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border: 2px solid var(--primary);
+    border-radius: 2px;
+    z-index: 4;
+}
+
+.anno-handle-nw { top: -5px; left: -5px; cursor: nwse-resize; }
+.anno-handle-ne { top: -5px; right: -5px; cursor: nesw-resize; }
+.anno-handle-sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
+.anno-handle-se { bottom: -5px; right: -5px; cursor: nwse-resize; }
+
+.annotate-footer-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.annotate-pager {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.annotate-page-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 96px;
+    text-align: center;
+}
+
+.annotate-export-actions {
+    margin-top: 0;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+.btn-icon:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 .btn-secondary {
     padding: 10px 20px;
     background: var(--card-bg);
@@ -1099,7 +1330,13 @@ body {
 
 @media (max-width: 720px) {
     .tool-nav {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .tool-nav-btn span {
+        display: none;
+    }
+    .tool-nav-btn {
+        padding: 12px 8px;
     }
     .quality-options {
         grid-template-columns: 1fr;
@@ -1110,6 +1347,19 @@ body {
     }
     .btn-primary-inline {
         width: 100%;
+    }
+    .annotate-footer-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .annotate-pager {
+        justify-content: space-between;
+    }
+    .annotate-export-actions {
+        width: 100%;
+    }
+    .annotate-tool-btn span {
+        display: none;
     }
 }
 

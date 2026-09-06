@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Freeze | Suite Local de Documentos</title>
-    <meta name="description" content="Suite privada en el navegador: sanitizar, unir, editar páginas y comprimir PDFs. 100% local, sin servidor.">
+    <meta name="description" content="Suite privada en el navegador: sanitizar, unir, ordenar, editar y comprimir PDFs. 100% local, sin servidor.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%232563eb%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,11 @@
             </button>
             <button type="button" class="tool-nav-btn" role="tab" aria-selected="false" data-tool="pages">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
-                <span>Editar páginas</span>
+                <span>Ordenar</span>
+            </button>
+            <button type="button" class="tool-nav-btn" role="tab" aria-selected="false" data-tool="annotate">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <span>Editar</span>
             </button>
             <button type="button" class="tool-nav-btn" role="tab" aria-selected="false" data-tool="compress">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -222,7 +226,7 @@
             <!-- ========== TOOL: PAGES ========== -->
             <div id="tool-pages" class="tool-panel" role="tabpanel" hidden>
                 <div class="panel-header">
-                    <h2>Editar páginas</h2>
+                    <h2>Ordenar páginas</h2>
                     <p>Cargue un PDF para reordenar, rotar o eliminar páginas. Arrastre las miniaturas para cambiar el orden.</p>
                 </div>
 
@@ -265,6 +269,100 @@
                     </div>
                     <div class="progress-track">
                         <div class="progress-bar" id="pages-progress"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TOOL: ANNOTATE ========== -->
+            <div id="tool-annotate" class="tool-panel" role="tabpanel" hidden>
+                <div class="panel-header">
+                    <h2>Editar PDF</h2>
+                    <p>Agregue texto, imágenes/logos y recuadros de color sobre el documento. Puede mover, redimensionar y eliminar solo los elementos nuevos. Al exportar se fusionan en el PDF.</p>
+                </div>
+
+                <div class="upload-area" id="annotate-dropzone">
+                    <input type="file" id="annotate-input" accept=".pdf,application/pdf" aria-label="Seleccionar PDF para anotar">
+                    <div class="upload-content">
+                        <div class="upload-icon-wrapper">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                                <path d="M12 20h9"/>
+                                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                            </svg>
+                        </div>
+                        <div class="upload-prompt">
+                            <p class="prompt-main">Haga clic o arrastre un <strong>PDF</strong></p>
+                            <p class="prompt-sub">Editor de capas encima del documento (no modifica el texto original)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="annotate-workspace" class="annotate-workspace" style="display: none;">
+                    <div class="annotate-toolbar" role="toolbar" aria-label="Herramientas de anotación">
+                        <div class="annotate-tool-group">
+                            <button type="button" class="annotate-tool-btn active" data-annotate-tool="select" title="Seleccionar / mover" aria-pressed="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+                                <span>Seleccionar</span>
+                            </button>
+                            <button type="button" class="annotate-tool-btn" data-annotate-tool="text" title="Agregar texto" aria-pressed="false">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                                <span>Texto</span>
+                            </button>
+                            <button type="button" class="annotate-tool-btn" data-annotate-tool="rect" title="Agregar recuadro" aria-pressed="false">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                                <span>Recuadro</span>
+                            </button>
+                            <button type="button" class="annotate-tool-btn" data-annotate-tool="image" title="Agregar imagen" aria-pressed="false">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                <span>Imagen</span>
+                            </button>
+                        </div>
+                        <div class="annotate-props">
+                            <label class="annotate-prop" title="Color">
+                                <span>Color</span>
+                                <input type="color" id="annotate-color" value="#111827">
+                            </label>
+                            <label class="annotate-prop" title="Tamaño de texto">
+                                <span>Texto</span>
+                                <input type="number" id="annotate-font-size" value="16" min="8" max="96" step="1">
+                            </label>
+                            <button type="button" class="btn-icon danger" id="annotate-delete-btn" title="Eliminar selección (Supr)" aria-label="Eliminar selección" disabled>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="file" id="annotate-image-input" accept="image/png,image/jpeg,image/jpg,image/webp" hidden>
+
+                    <div class="annotate-stage-shell">
+                        <div class="annotate-stage" id="annotate-stage">
+                            <canvas id="annotate-pdf-canvas"></canvas>
+                            <div id="annotate-overlay" class="annotate-overlay"></div>
+                            <div id="annotate-draft" class="annotate-draft" hidden></div>
+                        </div>
+                    </div>
+
+                    <div class="annotate-footer-bar">
+                        <div class="annotate-pager">
+                            <button type="button" class="btn-secondary" id="annotate-prev-btn" aria-label="Página anterior">Anterior</button>
+                            <span id="annotate-page-label" class="annotate-page-label">Página 1 / 1</span>
+                            <button type="button" class="btn-secondary" id="annotate-next-btn" aria-label="Página siguiente">Siguiente</button>
+                        </div>
+                        <div class="tool-actions annotate-export-actions">
+                            <button type="button" class="btn-secondary" id="annotate-reset-btn">Cargar otro PDF</button>
+                            <button type="button" class="btn-primary btn-primary-inline" id="annotate-export-btn">
+                                <span>Descargar PDF editado</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="progress-panel" id="annotate-progress-container" style="display: none;">
+                        <div class="progress-header">
+                            <span id="annotate-status" class="status-label">Exportando...</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-bar" id="annotate-progress"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -358,7 +456,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <h3>Suite 100% Local</h3>
                 </div>
-                <p>Sanitizar, unir, editar páginas y comprimir sin salir del navegador. Cero subida a servidores externos.</p>
+                <p>Sanitizar, unir, ordenar, editar y comprimir sin salir del navegador. Cero subida a servidores externos.</p>
             </div>
 
             <div class="trust-card">
@@ -458,5 +556,6 @@
 
     <script src="app.js"></script>
     <script src="tools.js"></script>
+    <script src="annotate.js"></script>
 </body>
 </html>

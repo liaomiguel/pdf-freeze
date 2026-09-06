@@ -4,7 +4,7 @@
 [![Netlify](https://img.shields.io/badge/Netlify-Ready-00C7B7?style=for-the-badge&logo=netlify)](https://www.netlify.com/)
 [![Licencia](https://img.shields.io/badge/Licencia-MIT-blue?style=for-the-badge)](LICENSE)
 
-**PDF Freeze** es una suite web client-side para sanitizar, unir, editar páginas y comprimir documentos **PDF** (y TIFF en el flujo de sanitización), con privacidad absoluta: los archivos nunca salen del navegador.
+**PDF Freeze** es una suite web client-side para sanitizar, unir, ordenar, editar y comprimir documentos **PDF** (y TIFF en el flujo de sanitización), con privacidad absoluta: los archivos nunca salen del navegador.
 
 ---
 
@@ -14,7 +14,8 @@
 |---|---|
 | **Sanitizar** | Rasteriza PDF/TIFF a PNG (150 DPI) y reconstruye un PDF plano sin capas ni metadatos |
 | **Unir PDFs** | Combina varios PDFs en uno, con reordenamiento por arrastre |
-| **Editar páginas** | Reordena, rota y elimina páginas con miniaturas locales |
+| **Ordenar** | Reordena, rota y elimina páginas con miniaturas locales |
+| **Editar** | Agrega texto, imágenes/logos y recuadros de color (overlays) sobre el PDF |
 | **Comprimir** | Reduce peso rasterizando a JPEG con perfiles de calidad |
 
 ---
@@ -81,12 +82,22 @@ flowchart LR
 ### Unir PDFs
 Carga múltiples archivos, reordénalos (arrastre o botones) y descarga un único PDF. Se limpian metadatos del documento resultante.
 
-### Editar páginas
+### Ordenar
 Abre un PDF, genera miniaturas locales y permite:
 - Reordenar por arrastre
 - Rotar 90° (izquierda/derecha)
 - Eliminar páginas
 - Exportar el PDF resultante
+
+### Editar
+Editor de capas encima del PDF (no reedita el texto nativo del documento):
+- Agregar texto (doble clic para editar)
+- Agregar imagen / logo
+- Agregar recuadro de color (útil para tapar datos visualmente)
+- Mover, redimensionar y eliminar solo los elementos nuevos
+- Exportar fusionando las anotaciones en el PDF
+
+> Para ocultar datos de forma irreversible, use **Sanitizar** (rasterización) después de editar, o un recuadro opaco + Freeze.
 
 ### Comprimir
 Rasteriza cada página a JPEG según el perfil elegido:
