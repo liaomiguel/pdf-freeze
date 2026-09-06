@@ -127,34 +127,77 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// TAB SWITCHING LOGIC
+// TOOL + PHASE NAVIGATION
+function switchTool(toolId) {
+    document.querySelectorAll('.tool-nav-btn').forEach(btn => {
+        const isActive = btn.dataset.tool === toolId;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('.tool-panel').forEach(panel => {
+        const isActive = panel.id === `tool-${toolId}`;
+        panel.classList.toggle('active', isActive);
+        if (isActive) {
+            panel.removeAttribute('hidden');
+        } else {
+            panel.setAttribute('hidden', '');
+        }
+    });
+}
+
+function switchPhase(phaseId) {
+    const sanitizePanel = document.getElementById('tool-sanitize');
+    if (!sanitizePanel) return;
+
+    sanitizePanel.querySelectorAll('.tab-btn').forEach(btn => {
+        const isActive = btn.dataset.phase === phaseId;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    sanitizePanel.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.toggle('active', content.id === `${phaseId}-tab`);
+    });
+}
+
+document.querySelectorAll('.tool-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTool(btn.dataset.tool));
+});
+
+document.querySelectorAll('#tool-sanitize .tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchPhase(btn.dataset.phase));
+});
+
+// Keep legacy global for any residual callers
 function switchTab(tabId) {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-        btn.setAttribute('aria-selected', 'false');
-    });
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    
-    const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
-    if (activeBtn) {
-        activeBtn.classList.add('active');
-        activeBtn.setAttribute('aria-selected', 'true');
-    }
-    
-    const targetPanel = document.getElementById(`${tabId}-tab`);
-    if (targetPanel) {
-        targetPanel.classList.add('active');
-    }
+    switchTool('sanitize');
+    switchPhase(tabId);
 }
 
 // FORMAT NUMBER
 const padZero = (num) => String(num).padStart(3, '0');
 
+function formatBytes(bytes) {
+    if (!bytes && bytes !== 0) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+
+function stripPdfMetadata(pdfDoc) {
+    pdfDoc.setTitle('');
+    pdfDoc.setAuthor('');
+    pdfDoc.setSubject('');
+    pdfDoc.setKeywords([]);
+    pdfDoc.setProducer('');
+    pdfDoc.setCreator('');
+}
+
 // DRAG & DROP UI ENHANCEMENTS
 function setupDropzone(dropzoneId, inputId, handleFiles) {
     const dropzone = document.getElementById(dropzoneId);
+    if (!dropzone) return;
 
     ['dragenter', 'dragover'].forEach(eventName => {
         dropzone.addEventListener(eventName, (e) => {
@@ -377,12 +420,7 @@ async function executeReconstruction() {
             );
             
             const pdfDoc = await PDFLib.PDFDocument.create();
-            pdfDoc.setTitle('');
-            pdfDoc.setAuthor('');
-            pdfDoc.setSubject('');
-            pdfDoc.setKeywords([]);
-            pdfDoc.setProducer('');
-            pdfDoc.setCreator('');
+            stripPdfMetadata(pdfDoc);
             
             for (const file of files) {
                 const imageBytes = await file.entry.async('uint8array');

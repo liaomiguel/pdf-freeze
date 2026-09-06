@@ -1,14 +1,25 @@
-# PDF Freeze - Sanitizador y Aplanador de Documentos
+# PDF Freeze - Suite Local de Documentos
 
 [![Privacidad](https://img.shields.io/badge/Privacidad-100%25%20Local%20Browser-emerald?style=for-the-badge&logo=shield)](https://github.com/)
 [![Netlify](https://img.shields.io/badge/Netlify-Ready-00C7B7?style=for-the-badge&logo=netlify)](https://www.netlify.com/)
 [![Licencia](https://img.shields.io/badge/Licencia-MIT-blue?style=for-the-badge)](LICENSE)
 
-**PDF Freeze** es una herramienta web client-side diseñada para la sanitización, aplanado (rasterización) y censura irreversible de documentos **PDF** y **TIFF**, garantizando una privacidad absoluta del 100%.
+**PDF Freeze** es una suite web client-side para sanitizar, unir, editar páginas y comprimir documentos **PDF** (y TIFF en el flujo de sanitización), con privacidad absoluta: los archivos nunca salen del navegador.
 
 ---
 
-## Propósito Principal
+## Herramientas incluidas
+
+| Herramienta | Qué hace |
+|---|---|
+| **Sanitizar** | Rasteriza PDF/TIFF a PNG (150 DPI) y reconstruye un PDF plano sin capas ni metadatos |
+| **Unir PDFs** | Combina varios PDFs en uno, con reordenamiento por arrastre |
+| **Editar páginas** | Reordena, rota y elimina páginas con miniaturas locales |
+| **Comprimir** | Reduce peso rasterizando a JPEG con perfiles de calidad |
+
+---
+
+## Propósito Principal (Sanitizar)
 
 En el ámbito profesional y legal, a menudo existe la necesidad de compartir documentos sensibles que han sido previamente editados, censurados (tachando datos personales, montos o firmas) o recortados.
 
@@ -29,7 +40,7 @@ El resultado final es un archivo **completamente inalterable, irreversible y a p
 
 ---
 
-## ¿Cómo Funciona? (Las 2 Fases)
+## ¿Cómo Funciona? (Sanitización en 2 Fases)
 
 ```mermaid
 flowchart LR
@@ -65,12 +76,34 @@ flowchart LR
 
 ---
 
+## Herramientas adicionales
+
+### Unir PDFs
+Carga múltiples archivos, reordénalos (arrastre o botones) y descarga un único PDF. Se limpian metadatos del documento resultante.
+
+### Editar páginas
+Abre un PDF, genera miniaturas locales y permite:
+- Reordenar por arrastre
+- Rotar 90° (izquierda/derecha)
+- Eliminar páginas
+- Exportar el PDF resultante
+
+### Comprimir
+Rasteriza cada página a JPEG según el perfil elegido:
+- **Alta calidad:** 120 DPI · JPEG 85%
+- **Equilibrada:** 96 DPI · JPEG 70%
+- **Máxima reducción:** 72 DPI · JPEG 55%
+
+> La compresión convierte el contenido a imagen: el texto deja de ser seleccionable. Es el trade-off habitual para bajar peso de forma predecible en el navegador.
+
+---
+
 ## Replicación Recursiva de Carpetas (Efecto Espejo)
 
-PDF Freeze está optimizado para el **procesamiento masivo** y el respeto de la estructura jerárquica de archivos del usuario:
+En el flujo de **Sanitizar**, PDF Freeze está optimizado para el **procesamiento masivo** y el respeto de la estructura jerárquica de archivos del usuario:
 
 - **Lectura Recursiva:** Si seleccionas una carpeta principal con múltiples subcarpetas anidadas (ej. `Clientes/2026/Facturas/contrato.pdf`), la herramienta escaneará automáticamente todas las ramificaciones sin importar el nivel de profundidad.
-- **Efecto Espejo:** Al extraer las imágenes (Fase 1) o reconstruir los PDFs (Fase 2), la aplicación genera exactamente la misma estructura de carpetas de origen. Los documentos procesados se mantendrán en su ruta lógica correspondiente (`Clientes/2026/Facturas/contrato.pdf`), eliminando la necesidad de reorganización manual.
+- **Efecto Espejo:** Al extraer las imágenes (Fase 1) o reconstruir los PDFs (Fase 2), la aplicación genera exactamente la misma estructura de carpetas de origen.
 
 ---
 
@@ -91,9 +124,9 @@ A diferencia de otros conversores online, PDF Freeze ejecuta todo el proceso de 
 
 La aplicación está construida como un sitio web estático ultra liviano usando tecnologías web estándar y librerías cliente de primer nivel:
 
-- **HTML5 & CSS3 Vanilla:** Interfaz en modo oscuro moderno, limpia, responsiva y orientada a la experiencia de usuario.
+- **HTML5 & CSS3 Vanilla:** Interfaz en modo oscuro moderna, limpia, responsiva y orientada a la experiencia de usuario.
 - **[PDF.js](https://mozilla.github.io/pdf.js/) (Mozilla):** Motor de renderizado en Canvas para convertir archivos PDF a imágenes en el navegador.
-- **[pdf-lib](https://pdf-lib.js.org/):** Librería cliente para instanciar PDFs limpios y empaquetar las páginas en un nuevo documento plano.
+- **[pdf-lib](https://pdf-lib.js.org/):** Librería cliente para unir, rotar, copiar páginas e instanciar PDFs limpios.
 - **[JSZip](https://stuk.github.io/jszip/):** Gestión y generación de archivos comprimidos preservando la jerarquía de directorios.
 - **[UTIF.js](https://github.com/photopea/UTIF.js):** Decodificador multipágina para archivos TIFF.
 - **[FileSaver.js](https://github.com/eligrey/FileSaver.js/):** Manejo de descargas en el cliente.
@@ -111,15 +144,7 @@ Dado que **PDF Freeze** es una aplicación 100% estática (HTML/CSS/JS), su desp
 4. En cuestión de segundos, Netlify desplegará tu sitio con un dominio gratuito HTTPS.
 
 ### Opción 2: Vinculando a GitHub (Despliegue Continuo)
-1. Sube este proyecto a un repositorio de GitHub:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit - PDF Freeze"
-   git branch -M main
-   git remote add origin https://github.com/TU_USUARIO/pdf-freeze.git
-   git push -u origin main
-   ```
+1. Sube este proyecto a un repositorio de GitHub.
 2. En tu panel de Netlify, haz clic en **"Add new site"** > **"Import an existing project"**.
 3. Selecciona **GitHub** y escoge el repositorio `pdf-freeze`.
 4. Configura los parámetros de compilación:
